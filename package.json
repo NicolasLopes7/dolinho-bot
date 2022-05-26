@@ -6,15 +6,19 @@
   "dependencies": {
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
+    "jest": "^28.1.0",
     "telegraf": "^4.8.2"
   },
   "devDependencies": {
+    "@types/jest": "^27.5.1",
+    "ts-jest": "^28.0.3",
     "ts-node": "^10.8.0",
     "typescript": "^4.7.2"
   },
   "scripts": {
     "start": "node ./src/index.js",
     "dev": "ts-node ./src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest"
   }
 }
