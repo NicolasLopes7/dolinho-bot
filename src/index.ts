@@ -1,39 +1,21 @@
 require('dotenv').config();
 import { Telegraf } from 'telegraf';
-import { getUSD } from './service/api';
+import commands from './service/telegram-commands';
+import schedulers from './service/schedulers';
+import { injectTelegramBot } from './utils/injectTelegramBot';
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_KEY!);
+const inject = injectTelegramBot(bot);
 
-const TARGET_PRICE = 4.8;
+const telegramCommands = commands.map(inject);
+const telegramSchedulers = schedulers.map(inject);
 
-setInterval(async () => {
-  const USD = await getUSD();
+telegramSchedulers.forEach((scheduler) =>
+  setInterval(scheduler.handler, scheduler.time * 1000)
+);
 
-  if (USD <= TARGET_PRICE) {
-    bot.telegram.sendMessage(
-      -703863353,
-      `O dolinho está: ${USD.toFixed(2)}`,
-      {}
-    );
-  }
-}, 60000);
-
-bot.command('start', (ctx) => {
-  bot.telegram.sendMessage(
-    ctx.chat.id,
-    'hey! send /dolinho and get the dollars price',
-    {}
-  );
-});
-
-bot.command('dolinho', async (ctx) => {
-  console.log(ctx.chat.id);
-  const dolinho = await getUSD();
-  bot.telegram.sendMessage(
-    ctx?.chat?.id!,
-    `O dolinho está: ${dolinho.toFixed(2)}`,
-    {}
-  );
-});
+telegramCommands.forEach((command) =>
+  bot.command(command.name, command.handler)
+);
 
 bot.launch();
